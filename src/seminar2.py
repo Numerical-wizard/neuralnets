@@ -1,7 +1,7 @@
 # Seminar 2. Softmax classifier.
 import datetime
 import os.path
-
+import torch
 import numpy as np
 from src.test_utils import get_preprocessed_data, visualize_weights, visualize_loss
 
@@ -13,7 +13,7 @@ def softmax(X: np.array) -> np.array:
     :param X: 2D array, shape (N, C)
     :return: softmax 2D array, shape (N, C)
     """
-    return X
+    return torch.exp(X)/(torch.exp(X).sum())
 
 
 def softmax_loss_and_grad(W: np.array, X: np.array, y: np.array, reg: float) -> tuple:
@@ -28,16 +28,23 @@ def softmax_loss_and_grad(W: np.array, X: np.array, y: np.array, reg: float) -> 
     :return: loss, dW
     """
     loss = 0.0
-    dL_dW = np.zeros_like(W)
     # *****START OF YOUR CODE*****
     # 1. Forward pass, compute loss as sum of data loss and regularization loss [sum(W ** 2)]
-
+    dL_dW = np.zeros_like(W)
+    dense_output = np.dot(X, W)
+    activation_output = softmax(dense_output)
+    X_len = X.shape[0]
+    correct_probs = activation_output[range(X_len), y]
+    data_loss = np.sum(-np.log(correct_probs)) /
+    reg_loss = 0.5 * reg * np.sum(W ** 2)
+    loss = data_loss + reg_loss
     # 2. Backward pass, compute intermediate dL/dZ
-
+    dL_dZ = activation_output
+    dL_dZ[range(X_len), y] -= 1
     # 3. Compute data gradient dL/dW
-
+    dW = X.T.dot(dL_dZ)
     # 4. Compute regularization gradient
-
+    dW += reg * W
     # 5. Return loss and sum of data + reg gradients
 
     # *****END OF YOUR CODE*****
@@ -88,6 +95,9 @@ class SoftmaxClassifier:
             # replacement is faster than sampling without replacement.              #
             #########################################################################
             # *****START OF YOUR CODE (DO NOT DELETE/MODIFY THIS LINE)*****
+            batch_indices = np.random.choice(num_train, batch_size, replace=True)
+            X_batch = X[batch_indices]
+            y_batch = y[batch_indices]
 
             # *****END OF YOUR CODE (DO NOT DELETE/MODIFY THIS LINE)*****
 
@@ -101,7 +111,7 @@ class SoftmaxClassifier:
             # Update the weights using the gradient and the learning rate.          #
             #########################################################################
             # *****START OF YOUR CODE (DO NOT DELETE/MODIFY THIS LINE)*****
-
+            self.W -= learning_rate * grad
             # *****END OF YOUR CODE (DO NOT DELETE/MODIFY THIS LINE)*****
             if it % 100 == 0:
                 if verbose:
