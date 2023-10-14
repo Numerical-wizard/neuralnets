@@ -1,7 +1,6 @@
 # Seminar 2. Softmax classifier.
 import datetime
 import os.path
-import torch
 import numpy as np
 from src.test_utils import get_preprocessed_data, visualize_weights, visualize_loss
 
@@ -13,7 +12,7 @@ def softmax(X: np.array) -> np.array:
     :param X: 2D array, shape (N, C)
     :return: softmax 2D array, shape (N, C)
     """
-    return torch.exp(X)/(torch.exp(X).sum())
+    return np.exp(X)/(np.exp(X).sum())
 
 
 def softmax_loss_and_grad(W: np.array, X: np.array, y: np.array, reg: float) -> tuple:
@@ -35,7 +34,7 @@ def softmax_loss_and_grad(W: np.array, X: np.array, y: np.array, reg: float) -> 
     activation_output = softmax(dense_output)
     X_len = X.shape[0]
     correct_probs = activation_output[range(X_len), y]
-    data_loss = np.sum(-np.log(correct_probs)) /
+    data_loss = np.sum(-np.log(correct_probs)) / X_len
     reg_loss = 0.5 * reg * np.sum(W ** 2)
     loss = data_loss + reg_loss
     # 2. Backward pass, compute intermediate dL/dZ

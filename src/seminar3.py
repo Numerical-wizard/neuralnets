@@ -44,7 +44,7 @@ def l2_regularization(W, reg_strength):
 
 class ReLULayer:
     def __init__(self):
-        self.mask = None
+        self.X = None
 
     def forward(self, X: np.array) -> np.array:
         """
@@ -54,7 +54,11 @@ class ReLULayer:
         :param X: input data
         :return: Rectified Linear Unit
         """
-        raise Exception("Not implemented!")
+        self.X = X
+        try:
+            return np.where(X >= 0, X, 0)
+        except:
+            raise Exception("Not implemented!")
 
     def backward(self, d_out: np.array) -> np.array:
         """
@@ -66,7 +70,10 @@ class ReLULayer:
           with respect to input
         """
         # TODO: Implement backward pass
-        raise Exception("Not implemented!")
+        try:
+            return d_out * (self.X > 0)
+        except:
+            raise Exception("Not implemented!")
 
     def params(self) -> dict:
         # ReLU Doesn't have any parameters
@@ -82,7 +89,8 @@ class DenseLayer:
     def forward(self, X):
         # TODO: Implement forward pass
         # Your implementation shouldn't have any loops
-        raise Exception("Not implemented!")
+        self.X = X.copy()
+        return X @ self.W.value + self.B.value
 
     def backward(self, d_out):
         """
@@ -96,7 +104,13 @@ class DenseLayer:
         d_result: np array (batch_size, n_input) - gradient
           with respect to input
         """
-        # TODO: Implement backward pass
+        d_result = d_out @ self.W.value.T
+        dW = self.X.T @ d_out
+        dB = np.sum(d_out, axis=0, keepdims = True)
+        self.W.grad = dW
+        self.B.grad = dB
+        return  d_result
+        # Compute the gradients with respect to W and Bss
         # Compute both gradient with respect to input
         # and gradients with respect to W and B
         # Add gradients of W and B to their `grad` attribute
@@ -106,7 +120,6 @@ class DenseLayer:
         # raise Exception("Not implemented!")
         # print('d_out shape is ', d_out.shape)
         # print('self.W shape is ', self.W.value.shape)
-        raise Exception("Not implemented!")
 
     def params(self):
         return {'W': self.W, 'B': self.B}
@@ -146,8 +159,9 @@ class TwoLayerNet:
         # Set layer parameters gradient to zeros
         # After that compute loss and gradients
         for layer in self.layers:
+            Z = layer.forward(Z)
             for param in layer.params().values():
-                pass
+                param.grad = np.zeros_like(param.grad)
 
         self.loss, self.d_out = softmax_with_cross_entropy(Z, y)
         return Z
@@ -160,8 +174,11 @@ class TwoLayerNet:
         tmp_d_out = self.d_out
         for layer in reversed(self.layers):
             tmp_d_out = layer.backward(tmp_d_out)
-            for param in layer.params().values():
-                pass
+            for param in layer.params().values(): # applying regularization for each parameter - weights and biases
+                strength = self.reg
+                reg_loss, reg_grad = l2_regularization(param.value, strength)
+                param.grad += reg_grad
+                self.loss += reg_loss
 
     def fit(self, X, y, learning_rate=1e-3, num_iters=10000,
             batch_size=4, verbose=True):
@@ -208,4 +225,4 @@ if __name__ == '__main__':
     """1 point"""
     # Train your TwoLayer Net!
     # Save report to output/seminar3
-    model = TwoLayerNet()
+    model = TwoLayerNet(3, 4, 5)
