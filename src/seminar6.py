@@ -15,9 +15,10 @@ PATH_TO_DATA_ZIP = 'data/raw/cats_dogs_train.zip'
 PATH_TO_DATA = 'data/raw/cats_dogs_train'
 PATH_TO_MODEL = 'models/model_6'
 BUCKET_NAME = 'neuralnets2023'
-# todo fix your git user name and copy .env to project root
+# todo fix your git user name and copy .env to project root 
 YOUR_GIT_USER = 'Numerical-wizard'
-
+image_size = (180, 180)
+batch_size = 64
 
 def download_data():
     """Pipeline: download and extract data"""
