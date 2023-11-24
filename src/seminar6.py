@@ -10,6 +10,7 @@ import tensorflow as tf
 import boto3 # для S3
 import dotenv
 
+GOOGLE_COLAB_LINK = "https://colab.research.google.com/drive/1b4-VaznVIqjgIhjMNZFpupBgPbKMiRGn#scrollTo=uXp-HdR3Xewe"
 DATA_URL = 'https://storage.yandexcloud.net/fa-bucket/cats_dogs_train.zip'
 PATH_TO_DATA_ZIP = 'data/raw/cats_dogs_train.zip'
 PATH_TO_DATA = 'data/raw/cats_dogs_train'
