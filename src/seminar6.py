@@ -173,7 +173,7 @@ def upload():
         aws_secret_access_key=SECRET_KEY
     )
 
-    client.upload_file(zip_model_path, BUCKET_NAME, f'{YOUR_GIT_USER}/model_6.zip')
+    client.upload_file(zip_model_path, BUCKET_NAME, f'{Numerical-wizard}/model_6.zip')
 
 
 if __name__ == '__main__':
