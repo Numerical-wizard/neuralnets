@@ -12,9 +12,10 @@ import boto3
 import dotenv
 import pandas as pd
 import tensorflow as tf
+from pathlib import Path
 
 MAX_WORDS = 1000
-MAX_SEQ_LEN = 150
+MAX_SEQ_LEN = 100
 DATA_URL_TRAIN = 'https://storage.yandexcloud.net/fa-bucket/spam.csv'
 DATA_URL_TEST = 'https://storage.yandexcloud.net/fa-bucket/spam_test.csv'
 PATH_TO_TRAIN_DATA = 'data/raw/spam.csv'
@@ -41,8 +42,8 @@ def make_model():
     :return:
     """
     inputs = tf.keras.layers.Input(name='inputs', shape=[MAX_SEQ_LEN])
-    x = tf.keras.layers.Embedding(MAX_WORDS, output_dim=4, input_length=MAX_SEQ_LEN)(inputs)
-    x = tf.keras.layers.SimpleRNN(units=4)(x)
+    x = tf.keras.layers.Embedding(MAX_WORDS, output_dim=20, input_length=MAX_SEQ_LEN)(inputs)
+    x = tf.keras.layers.SimpleRNN(units=32)(x)
     x = tf.keras.layers.Dense(1, name='out_layer')(x)
     x = tf.keras.layers.Activation('sigmoid')(x)
     recurrent_model = tf.keras.Model(inputs=inputs, outputs=x)
@@ -66,8 +67,9 @@ def train():
     model = make_model()
     model.summary()
     model.compile(loss='binary_crossentropy', optimizer='rmsprop', metrics=['accuracy', tf.keras.metrics.Precision()])
-    model.fit(sequences_matrix, Y_train, batch_size=128, epochs=10, validation_split=0.2)
-    model.save('models/model_7')
+    model.fit(sequences_matrix, Y_train, batch_size=64, epochs=10, validation_split=0.2)
+    model_path = os.path.join(os.getcwd(), Path('models/model_7'))
+    model.save(model_path)
 
 
 def validate(model_path='models/model_7') -> tuple:
